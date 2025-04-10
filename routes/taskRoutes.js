@@ -12,5 +12,6 @@ router.get('/', taskController.getTasks);
 router.put('/:id', taskController.updateTask);
 router.delete('/:id', taskController.deleteTask);
 router.post('/:id/assign', roles('admin', 'manager'), taskController.assignTask);
+router.get('/analytics', taskController.getAnalytics);
 
 module.exports = router;

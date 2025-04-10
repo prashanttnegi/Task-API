@@ -2,15 +2,22 @@ openapi: 3.0.0
 info:
   title: Task Manager API
   version: 1.0.0
-  description: RESTful API for managing users and tasks with role-based access control.
+  description: REST API for users, authentication, tasks, and analytics.
 
 servers:
   - url: http://localhost:5000
 
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
 paths:
   /api/auth/register:
     post:
-      summary: Register a new user
+      summary: Register a user
       requestBody:
         required: true
         content:
@@ -23,12 +30,11 @@ paths:
                 email: { type: string }
                 password: { type: string }
       responses:
-        '201':
-          description: Registered successfully
+        '201': { description: Registered }
 
   /api/auth/login:
     post:
-      summary: Login and receive JWT
+      summary: Login to receive JWT
       requestBody:
         required: true
         content:
@@ -40,31 +46,38 @@ paths:
                 emailOrUsername: { type: string }
                 password: { type: string }
       responses:
-        '200':
-          description: Login successful
+        '200': { description: Logged in }
+
+  /api/auth/logout:
+    post:
+      summary: Logout (client handles token deletion)
+      responses:
+        '200': { description: Logged out }
 
   /api/users/me:
     get:
-      summary: Get logged-in user profile
-      security:
-        - bearerAuth: []
+      summary: Get your user profile
+      security: [ { bearerAuth: [] } ]
       responses:
-        '200':
-          description: User profile info
+        '200': { description: Profile info }
+
+  /api/users:
+    get:
+      summary: Admin-only - Get all users
+      security: [ { bearerAuth: [] } ]
+      responses:
+        '200': { description: List of users }
 
   /api/tasks:
     get:
-      summary: Get tasks for user or team
-      security:
-        - bearerAuth: []
+      summary: Get tasks (own, team, or all)
+      security: [ { bearerAuth: [] } ]
       responses:
-        '200':
-          description: List of tasks
+        '200': { description: List of tasks }
 
     post:
-      summary: Create a new task
-      security:
-        - bearerAuth: []
+      summary: Create a task
+      security: [ { bearerAuth: [] } ]
       requestBody:
         content:
           application/json:
@@ -77,12 +90,63 @@ paths:
                 dueDate: { type: string, format: date }
                 priority: { type: string }
       responses:
-        '201':
-          description: Task created
+        '201': { description: Task created }
 
-components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+  /api/tasks/{id}:
+    put:
+      summary: Update task
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                status: { type: string }
+                priority: { type: string }
+      responses:
+        '200': { description: Task updated }
+
+    delete:
+      summary: Delete task
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Task deleted }
+
+  /api/tasks/{id}/assign:
+    post:
+      summary: Assign task (Manager/Admin only)
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId]
+              properties:
+                userId: { type: string }
+      responses:
+        '200': { description: Task assigned }
+
+  /api/tasks/analytics:
+    get:
+      summary: Get task analytics for user or team
+      security: [ { bearerAuth: [] } ]
+      responses:
+        '200': { description: Task analytics data }
