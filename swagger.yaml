@@ -6,6 +6,7 @@ info:
 
 servers:
   - url: http://localhost:5000
+  - url: https://task-api-1q7d.onrender.com
 
 components:
   securitySchemes:
