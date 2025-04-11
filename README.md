@@ -63,7 +63,9 @@ The API is organized under these main endpoints:
 | GET    | /api/tasks/analytics | Get task stats (completed, pending, etc.) |   |
 
 ### Swagger API Docs
-Available at: http://localhost:5000/api-docs
+Available at: 
+  * http://localhost:5000/api-docs
+  * https://task-api-1q7d.onrender.com/api-docs
 
 **Provides:**
 
