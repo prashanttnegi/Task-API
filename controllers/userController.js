@@ -1,4 +1,3 @@
-// controllers/userController.js
 const User = require('../models/User');
 
 // GET /api/users/me

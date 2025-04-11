@@ -1,31 +1,48 @@
-// controllers/taskController.js
 const Task = require('../models/Task');
 const User = require('../models/User');
 
 // Create a task
+// exports.createTask = async (req, res) => {
+//     try {
+//         const task = await Task.create({
+//         ...req.body,
+//         createdBy: req.user._id
+//         });
+//         res.status(201).json(task);
+//     } catch (err) {
+//         res.status(400).json({ message: 'Failed to create task', error: err.message });
+//     }
+// };
+
 exports.createTask = async (req, res) => {
+    // Block 'user' role from creating tasks
+    if (req.user.role === 'user') {
+      return res.status(403).json({ message: 'Users are not allowed to create tasks' });
+    }
+  
     try {
-        const task = await Task.create({
+      const task = await Task.create({
         ...req.body,
         createdBy: req.user._id
-        });
-        res.status(201).json(task);
+      });
+      res.status(201).json(task);
     } catch (err) {
-        res.status(400).json({ message: 'Failed to create task', error: err.message });
+      res.status(400).json({ message: 'Failed to create task', error: err.message });
     }
-};
-
+  };
+  
 // Get tasks (based on role)
 exports.getTasks = async (req, res) => {
     try {
         let query = {};
 
         if (req.user.role === 'user') {
-        query = { createdBy: req.user._id };
+            // Show only tasks where user is the assignee
+            query = { assignedTo: req.user._id };
         } else if (req.user.role === 'manager') {
-        // Manager sees tasks created by their team
-        const teamUsers = await User.find({ team: req.user.team }).select('_id');
-        query = { createdBy: { $in: teamUsers.map(u => u._id) } };
+            // Manager sees tasks created by their team
+            const teamUsers = await User.find({ team: req.user.team }).select('_id');
+            query = { createdBy: { $in: teamUsers.map(u => u._id) } };
         }
 
         const tasks = await Task.find(query).populate('createdBy assignedTo', 'username email');
@@ -38,6 +55,7 @@ exports.getTasks = async (req, res) => {
 // Update a task
 exports.updateTask = async (req, res) => {
     try {
+          
         const task = await Task.findById(req.params.id);
         if (!task) return res.status(404).json({ message: 'Task not found' });
 
@@ -47,7 +65,7 @@ exports.updateTask = async (req, res) => {
         !(task.assignedTo && task.assignedTo.equals(req.user._id)) &&
         req.user.role !== 'admin'
         ) {
-        return res.status(403).json({ message: 'You cannot update this task' });
+            return res.status(403).json({ message: 'You cannot update this task' });
         }
 
         Object.assign(task, req.body);
@@ -61,11 +79,16 @@ exports.updateTask = async (req, res) => {
 // Delete a task
 exports.deleteTask = async (req, res) => {
     try {
+
+        if (req.user.role === 'user') {
+            return res.status(403).json({ message: 'Users cannot delete tasks' });
+        }
+          
         const task = await Task.findById(req.params.id);
         if (!task) return res.status(404).json({ message: 'Task not found' });
 
         if (!task.createdBy.equals(req.user._id) && req.user.role !== 'admin') {
-        return res.status(403).json({ message: 'You cannot delete this task' });
+            return res.status(403).json({ message: 'You cannot delete this task' });
         }
 
         await task.deleteOne();
@@ -103,7 +126,7 @@ exports.getAnalytics = async (req, res) => {
     try {
         const match = {};
         if (req.user.role === 'user') {
-            match.createdBy = req.user._id;
+            match.assignedTo = req.user._id;
         } else if (req.user.role === 'manager') {
             const teamUsers = await User.find({ team: req.user.team }).select('_id');
             match.createdBy = { $in: teamUsers.map(u => u._id) };

@@ -18,6 +18,10 @@ paths:
   /api/auth/register:
     post:
       summary: Register a user
+      description: |
+        Registers a new user.
+        - Email must be valid (e.g., user@example.com)
+        - Password must be at least 8 chars, contain uppercase, lowercase, and digit
       requestBody:
         required: true
         content:
@@ -50,9 +54,11 @@ paths:
 
   /api/auth/logout:
     post:
-      summary: Logout (client handles token deletion)
+      summary: Log out and invalidate token
+      security:
+        - bearerAuth: []
       responses:
-        '200': { description: Logged out }
+        '200': { description: Token blacklisted and user logged out }
 
   /api/users/me:
     get:
@@ -78,6 +84,7 @@ paths:
     post:
       summary: Create a task
       security: [ { bearerAuth: [] } ]
+      x-role-restriction: Only 'manager' and 'admin' allowed
       requestBody:
         content:
           application/json:
@@ -96,6 +103,7 @@ paths:
     put:
       summary: Update task
       security: [ { bearerAuth: [] } ]
+      x-role-restriction: Only 'manager' and 'admin' allowed
       parameters:
         - in: path
           name: id
@@ -116,6 +124,7 @@ paths:
     delete:
       summary: Delete task
       security: [ { bearerAuth: [] } ]
+      x-role-restriction: Only 'manager' and 'admin' allowed
       parameters:
         - in: path
           name: id
