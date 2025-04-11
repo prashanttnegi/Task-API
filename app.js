@@ -10,7 +10,14 @@ const YAML = require('yamljs');
 const app = express();
 
 // Middleware
-app.use(cors());
+
+// app.use(cors());
+
+// Allow all origins for now
+app.use(cors({
+  origin: '*',
+  credentials: true
+}));
 app.use(helmet());
 app.use(express.json());
 
