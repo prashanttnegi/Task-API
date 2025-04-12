@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const redisClient = require('../config/redis');
 
-// Helper: Generate JWT token
+// Generate JWT token
 const generateToken = (user) => {
   return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
     expiresIn: '1h' // token is valid for 1 hour
@@ -13,7 +13,7 @@ const generateToken = (user) => {
 exports.register = async (req, res) => {
     const { username, email, password } = req.body;
   
-    // ✅ Validation
+    // Validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
   

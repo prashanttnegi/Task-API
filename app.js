@@ -11,13 +11,14 @@ const app = express();
 
 // Middleware
 
-// app.use(cors());
+// app.use(cors()); // For local
 
-// Allow all origins for now
+// Allow all origins for now for Deployment
 app.use(cors({
   origin: '*',
   credentials: true
 }));
+
 app.use(helmet());
 app.use(express.json());
 
@@ -40,7 +41,7 @@ app.use('/api/tasks', require('./routes/taskRoutes'));
 
 // Health check route
 app.get('/', (req, res) => {
-  res.send('🚀 Task Manager API is running!');
+  res.send('Task Manager API is running!');
 });
 
 // Start server

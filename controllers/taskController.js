@@ -1,18 +1,6 @@
 const Task = require('../models/Task');
 const User = require('../models/User');
 
-// Create a task
-// exports.createTask = async (req, res) => {
-//     try {
-//         const task = await Task.create({
-//         ...req.body,
-//         createdBy: req.user._id
-//         });
-//         res.status(201).json(task);
-//     } catch (err) {
-//         res.status(400).json({ message: 'Failed to create task', error: err.message });
-//     }
-// };
 
 exports.createTask = async (req, res) => {
     // Block 'user' role from creating tasks

@@ -1,3 +1,5 @@
+// // For local Redis
+
 // const redis = require('redis');
 
 // const client = redis.createClient(); // Default: localhost:6379
@@ -11,6 +13,7 @@
 // module.exports = client;
 
 
+// // For Redis Cloud
 
 const redis = require('redis');
 
